@@ -1,0 +1,115 @@
+@import "tailwindcss";
+
+@layer base {
+  :root {
+    --bg-main: #F5F7FB;
+    --surface: #FFFFFF;
+    --surface-hover: #F8FAFC;
+    --card-border: #E2E8F0;
+    --text-primary: #172033;
+    --text-secondary: #718096;
+    --brand-primary: #2563EB;
+    --brand-navy: #101B35;
+    --brand-cyan: #38BDF8;
+    --success: #16A34A;
+    --warning: #F59E0B;
+    --danger: #EF4444;
+  }
+
+  .dark {
+    --bg-main: #0B1120;
+    --surface: #131D33;
+    --surface-hover: #1A2644;
+    --card-border: #1E2E4E;
+    --text-primary: #F8FAFC;
+    --text-secondary: #94A3B8;
+    --brand-primary: #3B82F6;
+    --brand-navy: #080D1A;
+    --brand-cyan: #38BDF8;
+    --success: #22C55E;
+    --warning: #FBBF24;
+    --danger: #F87171;
+  }
+
+  body {
+    background-color: var(--bg-main);
+    color: var(--text-primary);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Inter", Helvetica, Arial, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    margin: 0;
+    padding: 0;
+    min-height: 100vh;
+  }
+}
+
+/* Custom Scrollbars */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: #CBD5E1;
+  border-radius: 4px;
+}
+.dark ::-webkit-scrollbar-thumb {
+  background: #334155;
+}
+
+/* Glassmorphism and Card Styling */
+.glass-panel {
+  background: rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(226, 232, 240, 0.8);
+}
+.dark .glass-panel {
+  background: rgba(19, 29, 51, 0.85);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(30, 46, 78, 0.8);
+}
+
+.card-elevated {
+  background: var(--surface);
+  border: 1px solid var(--card-border);
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.05), 0 1px 2px -1px rgba(0, 0, 0, 0.05);
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.card-elevated:hover {
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.08), 0 2px 4px -2px rgba(0, 0, 0, 0.08);
+}
+
+/* Status Badges */
+.badge-low-risk {
+  background-color: #DCFCE7;
+  color: #15803D;
+  border: 1px solid #BBF7D0;
+}
+.dark .badge-low-risk {
+  background-color: rgba(22, 163, 74, 0.2);
+  color: #4ADE80;
+  border: 1px solid rgba(74, 222, 128, 0.3);
+}
+
+.badge-med-risk {
+  background-color: #FEF3C7;
+  color: #B45309;
+  border: 1px solid #FDE68A;
+}
+.dark .badge-med-risk {
+  background-color: rgba(245, 158, 11, 0.2);
+  color: #FCD34D;
+  border: 1px solid rgba(252, 211, 77, 0.3);
+}
+
+.badge-high-risk {
+  background-color: #FEE2E2;
+  color: #B91C1C;
+  border: 1px solid #FECACA;
+}
+.dark .badge-high-risk {
+  background-color: rgba(239, 68, 68, 0.2);
+  color: #F87171;
+  border: 1px solid rgba(248, 113, 113, 0.3);
+}
