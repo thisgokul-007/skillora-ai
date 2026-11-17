@@ -1,0 +1,44 @@
+{
+  "accuracy": 0.8814,
+  "precision": 0.8841,
+  "recall": 0.8814,
+  "f1_score": 0.8821,
+  "confusion_matrix": {
+    "matrix": [
+      [215, 26, 0],
+      [14, 241, 18],
+      [0, 25, 161]
+    ],
+    "labels": [
+      "Low Risk",
+      "Medium Risk",
+      "High Risk"
+    ]
+  },
+  "feature_importances": {
+    "attendance_percentage": 0.2495,
+    "consecutive_absences": 0.0995,
+    "internal_assessment_marks": 0.1409,
+    "previous_semester_gpa": 0.183,
+    "assignment_submission_rate": 0.1401,
+    "learning_engagement_score": 0.069,
+    "academic_backlogs": 0.1181
+  },
+  "sample_count": 3500,
+  "test_count": 700,
+  "model_type": "Random Forest Classifier (Scikit-Learn)",
+  "features": [
+    "attendance_percentage",
+    "consecutive_absences",
+    "internal_assessment_marks",
+    "previous_semester_gpa",
+    "assignment_submission_rate",
+    "learning_engagement_score",
+    "academic_backlogs"
+  ],
+  "class_labels": [
+    "Low Risk",
+    "Medium Risk",
+    "High Risk"
+  ]
+}

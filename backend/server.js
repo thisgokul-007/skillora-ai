@@ -23,11 +23,15 @@ app.use(cors());
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 
-// Configure multer for CSV uploads
-const upload = multer({ dest: path.join(__dirname, 'uploads/') });
-if (!fs.existsSync(path.join(__dirname, 'uploads/'))) {
-  fs.mkdirSync(path.join(__dirname, 'uploads/'), { recursive: true });
-}
+// Configure multer for CSV uploads safe for serverless
+const isVercel = !!process.env.VERCEL;
+const uploadDir = isVercel ? path.join('/tmp', 'uploads') : path.join(__dirname, 'uploads/');
+try {
+  if (!fs.existsSync(uploadDir)) {
+    fs.mkdirSync(uploadDir, { recursive: true });
+  }
+} catch (e) {}
+const upload = multer({ dest: uploadDir });
 
 // -------------------------------------------------------------
 // JWT Middleware
@@ -495,15 +499,20 @@ app.post('/api/students-import/csv', upload.single('file'), async (req, res) => 
 app.get('/api/risk/metrics', async (req, res) => {
   try {
     const aiRes = await axios.get(`${AI_SERVICE_URL}/api/metrics`, { timeout: 3000 });
-    res.json(aiRes.data);
+    return res.json(aiRes.data);
   } catch (err) {
-    // Fallback if AI service is starting
-    const localMetricsPath = path.join(__dirname, '..', 'ai-service', 'metrics.json');
-    if (fs.existsSync(localMetricsPath)) {
-      const data = JSON.parse(fs.readFileSync(localMetricsPath, 'utf-8'));
-      return res.json(data);
+    // Fallback to bundled trained model metrics (ideal for serverless / Vercel)
+    try {
+      const bundled = require('./database/metrics.json');
+      return res.json(bundled);
+    } catch (e) {
+      const localMetricsPath = path.join(__dirname, '..', 'ai-service', 'metrics.json');
+      if (fs.existsSync(localMetricsPath)) {
+        const data = JSON.parse(fs.readFileSync(localMetricsPath, 'utf-8'));
+        return res.json(data);
+      }
+      res.status(500).json({ error: 'Model metrics not available' });
     }
-    res.status(500).json({ error: 'Model metrics not available' });
   }
 });
 
@@ -904,9 +913,13 @@ app.put('/api/settings', async (req, res) => {
   }
 });
 
-app.listen(PORT, () => {
-  console.log(`====================================================`);
-  console.log(` Skillora AI Backend Server running on port ${PORT}`);
-  console.log(` AI Service configured at: ${AI_SERVICE_URL}`);
-  console.log(`====================================================`);
-});
+if (require.main === module) {
+  app.listen(PORT, () => {
+    console.log(`====================================================`);
+    console.log(` Skillora AI Backend Server running on port ${PORT}`);
+    console.log(` AI Service configured at: ${AI_SERVICE_URL}`);
+    console.log(`====================================================`);
+  });
+}
+
+module.exports = app;

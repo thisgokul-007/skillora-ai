@@ -8,33 +8,59 @@ const path = require('path');
 const bcrypt = require('bcryptjs');
 
 const SEED_FILE = path.join(__dirname, 'seed_data.json');
-const STORE_FILE = path.join(__dirname, 'data_store.json');
+let bundledSeed = null;
+try {
+  bundledSeed = require('./seed_data.json');
+} catch (e) {}
+
+const isVercel = !!process.env.VERCEL;
+const STORE_FILE = isVercel ? path.join('/tmp', 'data_store.json') : path.join(__dirname, 'data_store.json');
 
 // Initialize store if not present
-if (!fs.existsSync(STORE_FILE)) {
-  if (fs.existsSync(SEED_FILE)) {
-    fs.copyFileSync(SEED_FILE, STORE_FILE);
-    console.log('[DB] Initialized persistent store from seed_data.json');
-  } else {
-    fs.writeFileSync(STORE_FILE, JSON.stringify({}), 'utf-8');
+try {
+  if (!fs.existsSync(STORE_FILE)) {
+    if (fs.existsSync(SEED_FILE)) {
+      fs.copyFileSync(SEED_FILE, STORE_FILE);
+      console.log('[DB] Initialized persistent store from seed_data.json');
+    } else if (bundledSeed) {
+      fs.writeFileSync(STORE_FILE, JSON.stringify(bundledSeed, null, 2), 'utf-8');
+      console.log('[DB] Initialized persistent store from bundled seed');
+    }
   }
+} catch (e) {
+  console.log('[DB] Store init notice:', e.message);
 }
+
+let inMemoryStore = null;
 
 function loadStore() {
   try {
-    const raw = fs.readFileSync(STORE_FILE, 'utf-8');
-    return JSON.parse(raw);
-  } catch (err) {
-    console.error('[DB] Error loading store:', err);
-    return {};
+    if (fs.existsSync(STORE_FILE)) {
+      const raw = fs.readFileSync(STORE_FILE, 'utf-8');
+      inMemoryStore = JSON.parse(raw);
+      return inMemoryStore;
+    }
+  } catch (err) {}
+  if (inMemoryStore) return inMemoryStore;
+  if (bundledSeed) {
+    inMemoryStore = JSON.parse(JSON.stringify(bundledSeed));
+    return inMemoryStore;
   }
+  try {
+    if (fs.existsSync(SEED_FILE)) {
+      inMemoryStore = JSON.parse(fs.readFileSync(SEED_FILE, 'utf-8'));
+      return inMemoryStore;
+    }
+  } catch (err) {}
+  return {};
 }
 
 function saveStore(data) {
+  inMemoryStore = data;
   try {
     fs.writeFileSync(STORE_FILE, JSON.stringify(data, null, 2), 'utf-8');
   } catch (err) {
-    console.error('[DB] Error saving store:', err);
+    // In-memory fallback works smoothly in serverless
   }
 }
 
