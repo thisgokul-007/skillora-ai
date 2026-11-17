@@ -913,6 +913,11 @@ app.put('/api/settings', async (req, res) => {
   }
 });
 
+// Health check
+app.get('/api/health', (req, res) => {
+  res.json({ status: 'ok', service: 'skillora-backend', timestamp: new Date().toISOString() });
+});
+
 if (require.main === module) {
   app.listen(PORT, () => {
     console.log(`====================================================`);
